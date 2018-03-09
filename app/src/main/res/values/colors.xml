@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#F95F62</color>
+    <color name="colorPrimaryDark">#c02938</color>
+    <color name="colorPrimaryLight">#ff928f</color>
+    <color name="colorDialogHeading">#47525E</color>
+    <color name="colorDialogDone">#1C98DD</color>
+    <color name="colorDialogSpinnerText">#343F4B</color>
+    <color name="colorSwapVert">#343F4B</color>
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorIconClear">#969FAA</color>
+    <color name="colorTranslatedBg">#41ABE4</color>
+    <color name="colorKeyword">#47525E</color>
 </resources>

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">MHCI Project</string>
+    <string name="label_init">Get Started</string>
+    <string name="label_translate">Translate</string>
+
+    <string name="heading_dialog">Choose your preferred languages</string>
+    <string name="done_dialog">I\'m done</string>
+
+    <string name="hint_translate">Enter text...</string>
+
+
 </resources>
