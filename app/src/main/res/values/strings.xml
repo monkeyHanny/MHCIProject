@@ -6,7 +6,9 @@
     <string name="heading_dialog">Choose your preferred languages</string>
     <string name="done_dialog">I\'m done</string>
 
-    <string name="hint_translate">Enter text...</string>
+    <string name="hint_translate">Enter text&#8230;</string>
 
-
+    <string name="heading_accuracy_dialog">Improve the translation accuracy? Please enter the correct translation below.</string>
+    <string name="update_dialog">"Update"</string>
+    <string name="cancel_dialog">"Cancel"</string>
 </resources>

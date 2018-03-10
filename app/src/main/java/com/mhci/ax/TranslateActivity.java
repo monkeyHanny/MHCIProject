@@ -15,21 +15,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.cloud.translate.Translate.TranslateOption;
-import com.google.cloud.translate.Translation;
 import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.Translate.TranslateOption;
 import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.squareup.picasso.Picasso;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.mhci.ax.services.Utils.api;
+import static com.mhci.ax.services.Utils.apiCortical;
+import static com.mhci.ax.services.Utils.apiSearch;
 
 /**
  * Created by monkeyhanny on 9/3/2018.
@@ -43,6 +47,7 @@ public class TranslateActivity extends Activity implements View.OnClickListener 
     private CardView imgCardview;
     private ImageView imgRelated;
     private static String API_KEY = "AIzaSyAI4w45k1d98TWDhtcPg0BhmYm5K831QM8";
+    private static String cxId = "013798557058526750109:dg9gmocpn9c";
 
 
     @Override
@@ -120,11 +125,35 @@ public class TranslateActivity extends Activity implements View.OnClickListener 
                                         return null;
                                     }
                                 }.execute();
-                                api.getKeyword(curText).enqueue(new Callback<JsonArray>() {
+
+                                apiCortical.getKeyword(curText).enqueue(new Callback<JsonArray>() {
                                     @Override
                                     public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
-                                        imgCardview.setVisibility(View.VISIBLE);
-                                        txtKeyword.setText(response.body().get(0).getAsString());
+                                        if (response.body().size() > 0) {
+                                            if (imgCardview.getVisibility() == View.GONE) {
+                                                imgCardview.setVisibility(View.VISIBLE);
+                                            }
+                                            String keyword = response.body().get(0).getAsString();
+                                            Log.v("extract keyword", "keyword: " + response.body());
+
+                                            txtKeyword.setText(keyword);
+                                            apiSearch.getImgUrl(API_KEY, cxId, keyword).enqueue(new Callback<JsonObject>() {
+                                                @Override
+                                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                                    String link = response.body().get("items").getAsJsonArray().get(0).getAsJsonObject().get("link").getAsString();
+                                                    Picasso.get().load(link).into(imgRelated);
+                                                }
+
+                                                @Override
+                                                public void onFailure(Call<JsonObject> call, Throwable t) {
+                                                    Log.v("image url", "error: " + t.getMessage());
+                                                }
+                                            });
+
+                                        } else {
+                                            imgCardview.setVisibility(View.GONE);
+                                        }
+
                                     }
 
                                     @Override
@@ -132,6 +161,8 @@ public class TranslateActivity extends Activity implements View.OnClickListener 
                                         Log.v("get keyword", "error: " + t.getMessage());
                                     }
                                 });
+
+
                             }
                         },
                         DELAY

@@ -11,4 +11,5 @@
     <color name="colorIconClear">#969FAA</color>
     <color name="colorTranslatedBg">#41ABE4</color>
     <color name="colorKeyword">#47525E</color>
+    <color name="colorAccuracyBtn">#135DCC</color>
 </resources>
