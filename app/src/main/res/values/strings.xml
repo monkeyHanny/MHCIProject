@@ -11,4 +11,10 @@
     <string name="heading_accuracy_dialog">Improve the translation accuracy? Please enter the correct translation below.</string>
     <string name="update_dialog">"Update"</string>
     <string name="cancel_dialog">"Cancel"</string>
+
+    <string name="preference_original_key">original</string>
+    <string name="preference_target_key">target</string>
+    <string name="preference_init_key">init</string>
+
+    <string name="heading_fav">Favourites</string>
 </resources>
