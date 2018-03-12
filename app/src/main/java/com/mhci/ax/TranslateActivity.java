@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -23,13 +24,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -45,7 +48,6 @@ import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
 import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
-import com.google.api.services.vision.v1.model.TextAnnotation;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.Translate.TranslateOption;
 import com.google.cloud.translate.TranslateOptions;
@@ -84,7 +86,7 @@ import static com.mhci.ax.services.Utils.getTarget;
  * Created by monkeyhanny on 9/3/2018.
  */
 
-public class TranslateActivity extends FragmentActivity implements View.OnClickListener, AccuracyDialogFragment.OnAccuracyUpdatedListener {
+public class TranslateActivity extends FragmentActivity implements View.OnClickListener, AccuracyDialogFragment.OnAccuracyUpdatedListener, SettingDialogFragment.onSettingChangedListener {
     private EditText etInput;
     private Button btnOCR, btnSpeech, btnClear, btnFav, btnEdit, btnSpeaker;
     private TextView txtTranslated, txtKeyword;
@@ -322,6 +324,46 @@ public class TranslateActivity extends FragmentActivity implements View.OnClickL
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_option, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.item_setting:
+                showDialog();
+
+                return true;
+
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    private void showDialog() {
+
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        DialogFragment newFragment = SettingDialogFragment.newInstance();
+        newFragment.show(ft, "dialog");
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -552,8 +594,9 @@ public class TranslateActivity extends FragmentActivity implements View.OnClickL
         if (tempList.size() > 0) {
             favCardview.setVisibility(View.VISIBLE);
             for (Favourite favourite : tempList) {
+                insertFav(favourite, favContainer);
                 if (!originalList.contains(favourite.getOriginalText())) {
-                    insertFav(favourite, favContainer);
+
                     originalList.add(favourite.getOriginalText());
                 }
 
@@ -580,4 +623,9 @@ public class TranslateActivity extends FragmentActivity implements View.OnClickL
         return new File(dir, FILE_NAME);
     }
 
+    @Override
+    public void onSettingChanged(String firstLanguage, String secondLanguage) {
+        originalLanguage = firstLanguage;
+        targetLanguage = secondLanguage;
+    }
 }

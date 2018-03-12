@@ -17,4 +17,5 @@
     <string name="preference_init_key">init</string>
 
     <string name="heading_fav">Favourites</string>
+    <string name="menu_item_setting">Setting</string>
 </resources>

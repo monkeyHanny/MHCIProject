@@ -14,9 +14,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.mhci.ax.db.ViewModel;
-
-import static com.mhci.ax.services.Utils.ifInit;
+import static com.mhci.ax.services.Utils.getOriginal;
+import static com.mhci.ax.services.Utils.getTarget;
 import static com.mhci.ax.services.Utils.setPreferences;
 
 /**
@@ -28,10 +27,10 @@ public class SettingDialogFragment extends DialogFragment implements AdapterView
     private Spinner firstSpinner, secondSpinner;
     private Button btnSwap;
     private TextView tvDone;
-    private boolean isInit = true;
-    private ViewModel mViewModel;
-    private int firstIndex, secondIndex;
 
+    private onSettingChangedListener mSettingChangedListener = null;
+    private String firstCode, secondCode;
+    private String codes[];
 
     static SettingDialogFragment newInstance() {
         return new SettingDialogFragment();
@@ -42,15 +41,20 @@ public class SettingDialogFragment extends DialogFragment implements AdapterView
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Material_Light_Dialog);
-        isInit = ifInit(getActivity());
-        /*if (isInit) {
-            mViewModel = ViewModelProviders.of(getActivity()).get(ViewModel.class);
-            mViewModel.getAllPhrases().observe(getActivity(), phrases -> {
-                Log.v("get all phrases", "phrase count: " + phrases.size());
-            });
-        }*/
+        firstCode = getOriginal(getActivity());
+        secondCode = getTarget(getActivity());
+        codes = getActivity().getResources().getStringArray(R.array.language_codes);
+
     }
 
+    public interface onSettingChangedListener {
+
+        public void onSettingChanged(String firstLanguage, String secondLanguage);
+    }
+
+    public void setOnSettingChangedListener(onSettingChangedListener listener) {
+        mSettingChangedListener = listener;
+    }
 
     @Nullable
     @Override
@@ -67,9 +71,26 @@ public class SettingDialogFragment extends DialogFragment implements AdapterView
         firstSpinner.setAdapter(firstAdapter);
         firstSpinner.setOnItemSelectedListener(this);
 
+
         secondSpinner.setAdapter(secondAdapter);
         secondSpinner.setOnItemSelectedListener(this);
-        secondSpinner.setSelection(1);
+
+
+        int firstIndex = 0, secondIndex = 1;
+        if (!firstCode.isEmpty() && !secondCode.isEmpty()) {
+            for (int i = 0; i < codes.length; i++) {
+                if (codes[i].equals(firstCode))
+                    firstIndex = i;
+                else if (codes[i].equals(secondCode))
+                    secondIndex = i;
+            }
+            firstSpinner.setSelection(firstIndex, true);
+            secondSpinner.setSelection(secondIndex, true);
+        } else {
+            firstSpinner.setSelection(firstIndex, true);
+            secondSpinner.setSelection(secondIndex, true);
+        }
+
 
         tvDone = v.findViewById(R.id.tvDone);
         tvDone.setOnClickListener(this);
@@ -99,21 +120,28 @@ public class SettingDialogFragment extends DialogFragment implements AdapterView
 
     @Override
     public void onClick(View v) {
-        firstIndex = firstSpinner.getSelectedItemPosition();
-        secondIndex = secondSpinner.getSelectedItemPosition();
+        int firstIndex = firstSpinner.getSelectedItemPosition();
+        int secondIndex = secondSpinner.getSelectedItemPosition();
         if (v == btnSwap) {
 
             firstSpinner.setSelection(secondIndex, true);
             secondSpinner.setSelection(firstIndex, true);
         } else if (v == tvDone) {
-            String codes[] = getActivity().getResources().getStringArray(R.array.language_codes);
+
             String originalCode = codes[firstIndex];
             String targetCode = codes[secondIndex];
             Log.v("setting: ", "origianl: " + originalCode);
             Log.v("setting", "target: " + targetCode);
             setPreferences(getActivity(), originalCode, targetCode);
-            Intent i = new Intent(getActivity(), TranslateActivity.class);
-            startActivity(i);
+
+            if (null != mSettingChangedListener) {
+                mSettingChangedListener.onSettingChanged(originalCode, targetCode);
+            } else {
+                Intent i = new Intent(getActivity(), TranslateActivity.class);
+                startActivity(i);
+            }
+
+
         }
     }
 }
