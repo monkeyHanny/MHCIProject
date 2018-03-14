@@ -140,7 +140,7 @@ public class SettingDialogFragment extends DialogFragment implements AdapterView
                 Intent i = new Intent(getActivity(), TranslateActivity.class);
                 startActivity(i);
             }
-
+            this.dismiss();
 
         }
     }

@@ -359,7 +359,8 @@ public class TranslateActivity extends FragmentActivity implements View.OnClickL
         ft.addToBackStack(null);
 
         // Create and show the dialog.
-        DialogFragment newFragment = SettingDialogFragment.newInstance();
+        SettingDialogFragment newFragment = SettingDialogFragment.newInstance();
+        newFragment.setOnSettingChangedListener(this);
         newFragment.show(ft, "dialog");
     }
 
@@ -627,5 +628,6 @@ public class TranslateActivity extends FragmentActivity implements View.OnClickL
     public void onSettingChanged(String firstLanguage, String secondLanguage) {
         originalLanguage = firstLanguage;
         targetLanguage = secondLanguage;
+        etInput.getText().clear();
     }
 }
